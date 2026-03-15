@@ -122,6 +122,20 @@ OpenCuttle nodes can represent:
 
 > Early goal: OpenCuttle should be as easy to install as the best local-first projects.
 
+
+### Development commands
+
+OpenCuttle uses a small Make-based developer workflow.
+
+- `make dev` — set up the local development environment
+- `make test` — run tests
+- `make lint` — run lint checks
+- `make build` — build local artifacts
+- `make run` — run the local OpenCuttle entrypoint
+- `make clean` — remove temporary files and caches
+- `make doctor` — inspect local tool availability
+- `make demo` — run the current demo
+
 ### Recommended
 
 ```bash
