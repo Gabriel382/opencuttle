@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 PROJECT_NAME := opencuttle
-PYTHON ?= python3
+PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
 .PHONY: help dev test lint build run clean doctor demo
 

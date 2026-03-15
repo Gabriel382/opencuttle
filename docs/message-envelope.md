@@ -67,12 +67,28 @@ This set is intentionally minimal so the local bus can remain simple and stable 
 
 ## Validation
 
-The envelope will later support:
+OpenCuttle validates message envelopes against a JSON Schema.
 
-* required field validation
-* type validation
-* serialization and deserialization
-* correlation handling
+Current validation checks include:
+- required fields
+- field data types
+- basic message shape
+- allowed message type values
+- rejection of unknown top-level fields
+
+Validation is intentionally strict in v0 so malformed messages fail early and clearly.
+
+## Serialization
+
+OpenCuttle v0 serializes message envelopes as JSON objects.
+
+The current transport layer supports:
+- serialization from Python dictionary to JSON text
+- deserialization from JSON text to Python dictionary
+- validation before serialization
+- validation after deserialization
+
+This keeps the transport layer simple and explicit for the first local bus implementation.
 
 ## Status
 
