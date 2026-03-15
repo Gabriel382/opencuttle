@@ -14,13 +14,14 @@ It is used to represent messages exchanged between:
 - adapters
 - sub-buses
 
-## Planned fields
+## v0 schema decisions
 
-The initial envelope is expected to contain fields such as:
+For v0, OpenCuttle keeps the message envelope intentionally small.
+
+### Required fields
 
 - `id`
 - `task_id`
-- `parent_task_id`
 - `sender`
 - `target`
 - `type`
@@ -28,19 +29,39 @@ The initial envelope is expected to contain fields such as:
 - `metadata`
 - `timestamp`
 
+### Optional fields
+
+- `parent_task_id`
+
+### Message types
+
+OpenCuttle v0 supports four message types:
+
+- `invoke`
+- `response`
+- `error`
+- `event`
+
+This set is intentionally minimal so the local bus can remain simple and stable during the first implementation milestones.
+
 ## Example shape
 
 ```json
 {
-  "id": "msg_001",
-  "task_id": "task_001",
+  "id": "msg_0001",
+  "task_id": "task_0001",
   "parent_task_id": null,
   "sender": "user",
   "target": "demo-node",
   "type": "invoke",
-  "payload": {},
-  "metadata": {},
-  "timestamp": "2026-03-15T00:00:00Z"
+  "payload": {
+    "text": "Hello from OpenCuttle"
+  },
+  "metadata": {
+    "priority": "normal",
+    "source": "cli"
+  },
+  "timestamp": "2026-03-15T18:00:00Z"
 }
 ````
 
