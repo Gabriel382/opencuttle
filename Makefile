@@ -50,7 +50,7 @@ build:
 run:
 	@echo "==> Running OpenCuttle"
 	@if [ -f scripts/run.py ]; then \
-		$(PYTHON) scripts/run.py; \
+		PYTHONPATH=. $(PYTHON) scripts/run.py; \
 	else \
 		echo "scripts/run.py not found yet."; \
 		echo "Create it in Sprint 1 so 'make run' has a real entrypoint."; \
@@ -76,7 +76,7 @@ doctor:
 demo:
 	@echo "==> Running OpenCuttle demo"
 	@if [ -f examples/demo_local_bus.py ]; then \
-		$(PYTHON) examples/demo_local_bus.py; \
+		PYTHONPATH=. $(PYTHON) examples/demo_local_bus.py; \
 	else \
 		echo "examples/demo_local_bus.py not found yet."; \
 		echo "Create it as part of Milestone 3."; \

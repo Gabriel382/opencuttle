@@ -40,6 +40,20 @@ The first version is expected to be:
 * not persistent
 * not distributed
 
+## v0 implementation
+
+OpenCuttle local bus v0 is an in-memory synchronous dispatcher.
+
+It currently supports:
+- node registration
+- target-based dispatch
+- one request / one response flow
+- no network access
+- no persistence
+- no async runtime
+
+The goal of v0 is to prove the smallest working OpenCuttle runtime.
+
 ## Status
 
 This document is a stub and will evolve during the Local Bus milestone.
