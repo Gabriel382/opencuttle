@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenCuttle Node Manifest v0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Unique logical node name"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["node", "model", "adapter", "bus"],
+      "description": "Node category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short human-readable node description"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Declared node skills"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "uniqueItems": true,
+      "description": "Free-form tags for filtering and routing"
+    },
+    "model": {
+      "type": "string",
+      "description": "Optional model or backend name"
+    },
+    "version": {
+      "type": "string",
+      "description": "Optional node version"
+    },
+    "priority": {
+      "type": "integer",
+      "description": "Optional routing priority hint"
+    },
+    "persona": {
+      "type": "string",
+      "description": "Optional persona/profile label"
+    },
+    "memory_scope": {
+      "type": "string",
+      "enum": ["none", "task", "session", "shared"],
+      "description": "Optional memory scope hint"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "description",
+    "skills",
+    "tags"
+  ]
+}
