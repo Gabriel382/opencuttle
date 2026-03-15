@@ -90,6 +90,17 @@ The current transport layer supports:
 
 This keeps the transport layer simple and explicit for the first local bus implementation.
 
+## ID conventions
+
+OpenCuttle v0 standardizes IDs with simple prefixed UUID-based strings.
+
+### Message IDs
+Format:
+
+```text
+msg_<32 lowercase hex characters>
+````
+
 ## Status
 
 This document is a stub and will be refined during the Message Envelope milestone.
