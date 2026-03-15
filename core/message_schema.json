@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OpenCuttle Message Envelope v0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique identifier for this message"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "Identifier grouping related messages into the same task"
+    },
+    "parent_task_id": {
+      "type": ["string", "null"],
+      "description": "Identifier of the parent task when this message belongs to a subtask"
+    },
+    "sender": {
+      "type": "string",
+      "description": "Logical sender of the message"
+    },
+    "target": {
+      "type": "string",
+      "description": "Logical target node for the message"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["invoke", "response", "error", "event"],
+      "description": "Message kind"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Primary message content"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Auxiliary runtime metadata"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "RFC 3339 timestamp"
+    }
+  },
+  "required": [
+    "id",
+    "task_id",
+    "sender",
+    "target",
+    "type",
+    "payload",
+    "metadata",
+    "timestamp"
+  ]
+}
