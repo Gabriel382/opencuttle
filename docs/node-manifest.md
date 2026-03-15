@@ -213,3 +213,16 @@ print("manifest ok")
 ```
 
 If it prints `manifest ok`, the schema and example align. Draft 2020-12 validation is the correct match for this schema style. ([JSON Schema][3])
+
+
+## Registry basics
+
+OpenCuttle stores node metadata in a dedicated in-memory registry.
+
+The v0 registry supports:
+- manifest registration
+- lookup by node name
+- listing all registered manifests
+- duplicate-name rejection
+
+The registry is intentionally independent of the CLI and orchestration layers.
