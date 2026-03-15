@@ -78,6 +78,18 @@ Current validation checks include:
 
 Validation is intentionally strict in v0 so malformed messages fail early and clearly.
 
+## Serialization
+
+OpenCuttle v0 serializes message envelopes as JSON objects.
+
+The current transport layer supports:
+- serialization from Python dictionary to JSON text
+- deserialization from JSON text to Python dictionary
+- validation before serialization
+- validation after deserialization
+
+This keeps the transport layer simple and explicit for the first local bus implementation.
+
 ## Status
 
 This document is a stub and will be refined during the Message Envelope milestone.
