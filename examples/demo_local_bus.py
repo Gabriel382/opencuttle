@@ -9,26 +9,19 @@ from core.local_bus import LocalBus, EchoNode
 from core.message_ids import generate_message_id, generate_task_id
 
 
-def main() -> None:
+def build_demo_message(sender: str, target: str) -> dict:
     """
-    Run the minimal OpenCuttle local bus demo.
+    Build a valid demo message envelope.
     """
-    logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(name)s | %(message)s")
-
-    bus = LocalBus()
-
-    node_b = EchoNode(name="node-b")
-    bus.register_node(node_b)
-
-    message = {
+    return {
         "id": generate_message_id(),
         "task_id": generate_task_id(),
         "parent_task_id": None,
-        "sender": "node-a",
-        "target": "node-b",
+        "sender": sender,
+        "target": target,
         "type": "invoke",
         "payload": {
-            "text": "Hello from OpenCuttle demo"
+            "text": "Hello from node A"
         },
         "metadata": {
             "source": "demo"
@@ -36,13 +29,46 @@ def main() -> None:
         "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
     }
 
-    print("==> Dispatching message through OpenCuttle local bus")
+
+def main() -> None:
+    """
+    Run the minimal two-node OpenCuttle local bus demo.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(levelname)s | %(name)s | %(message)s",
+    )
+
+    print("=== OpenCuttle Demo: two-node local bus ===")
+
+    # Create the local bus.
+    bus = LocalBus()
+
+    # Define the two demo nodes conceptually.
+    node_a_name = "node-a"
+    node_b = EchoNode(name="node-b")
+
+    print(f"Creating node A: {node_a_name}")
+    print(f"Creating node B: {node_b.name}")
+
+    # Register only the receiving node in the bus.
+    # Node A is represented as the logical sender in this minimal demo.
+    bus.register_node(node_b)
+
+    # Build the message sent from node A to node B.
+    message = build_demo_message(sender=node_a_name, target=node_b.name)
+
+    print("\nNode A sends a message through the OpenCuttle bus:")
     print(message)
 
+    # Dispatch synchronously through the local bus.
     response = bus.send(message)
 
-    print("\n==> Response received")
+    print("\nNode B responds:")
     print(response)
+
+    print("\nDemo complete.")
+    print("OpenCuttle local bus successfully routed one message from node A to node B.")
 
 
 if __name__ == "__main__":
