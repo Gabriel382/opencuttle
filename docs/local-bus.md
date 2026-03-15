@@ -6,19 +6,24 @@ This document describes the first local bus implementation in OpenCuttle.
 
 The local bus is the first runtime communication layer in OpenCuttle.
 
-It is responsible for enabling local message exchange between nodes inside one OpenCuttle instance.
+Its role is to let nodes exchange messages inside a single local OpenCuttle instance.
 
-## Initial goals
+## What exists in Sprint 1
 
-The first version of the local bus should support:
-- in-memory communication
-- target-based dispatch
-- basic request/response
-- minimal demo flows
+In Sprint 1, the local bus supports:
 
-## Expected behavior
+- node registration
+- target-based message routing
+- synchronous request/response flow
+- message validation before dispatch
+- response validation before returning
+- minimal terminal logging
 
-A simple flow looks like this:
+This is the smallest working OpenCuttle runtime.
+
+## Simple architecture
+
+The current architecture is intentionally minimal:
 
 ```text
 Node A
@@ -30,55 +35,94 @@ Node B
 Response back to Node A
 ````
 
-## Limitations of v0
+## Message flow
 
-The first version is expected to be:
+The current local bus flow is:
 
-* in-memory only
-* local only
-* minimal
-* not persistent
-* not distributed
+1. a sender creates a valid OpenCuttle message envelope
+2. the bus validates the incoming message
+3. the bus resolves the target node by name
+4. if the target is missing, the bus raises a clear error
+5. the target node handles the message synchronously
+6. the bus validates the response envelope
+7. the response is returned to the caller
 
-## v0 implementation
-
-OpenCuttle local bus v0 is an in-memory synchronous dispatcher.
-
-It currently supports:
-- node registration
-- target-based dispatch
-- one request / one response flow
-- no network access
-- no persistence
-- no async runtime
-
-The goal of v0 is to prove the smallest working OpenCuttle runtime.
-
-## Dispatch flow
-
-OpenCuttle local bus v0 dispatches messages synchronously by target node name.
-
-### Current flow
-
-1. validate incoming message
-2. resolve the target node from the local registry
-3. raise a clear error if the target does not exist
-4. call the target node synchronously
-5. validate the returned response envelope
-6. return the response to the caller
-
-### Unknown target behavior
+## Unknown target behavior
 
 If a message targets a node that is not registered in the local bus, OpenCuttle raises a clear local bus error.
 
-### Logging
+This prevents silent failures and makes routing mistakes easy to diagnose.
 
-The v0 local bus emits minimal log events for:
-- node registration
-- message dispatch
-- missing target errors
-- response generation
+## Logging
 
-## Status
+The local bus currently emits minimal logs for:
 
-This document is a stub and will evolve during the Local Bus milestone.
+* node registration
+* message dispatch
+* missing target errors
+* response generation
+
+These logs are only meant to make the first runtime behavior visible and understandable.
+
+## Current limitations
+
+The Sprint 1 local bus is intentionally limited:
+
+* **in-memory only** — no sockets, no network, no shared state across processes
+* **no persistence** — no stored message history or replay yet
+* **no adapters yet** — only local Python nodes are supported
+* **no orchestrator yet** — the bus dispatches directly to a named target
+* **no async runtime** — dispatch is synchronous
+* **no retries or failover** — error handling is still minimal
+
+## Why this version matters
+
+This first local bus matters because it proves the core OpenCuttle loop:
+
+* create a message
+* validate it
+* dispatch it
+* handle it
+* return a response
+
+That is the foundation for everything that comes later:
+
+* adapters
+* orchestration
+* policies
+* memory
+* hierarchy
+* observability
+
+## Next evolution
+
+Later milestones will extend the local bus with:
+
+* persistence
+* adapters
+* richer routing
+* tracing
+* hierarchy and recursion
+* reliability features
+
+````
+
+---
+
+# How to validate Issue 15
+
+Run these checks:
+
+```bash
+make demo
+make test
+````
+
+Then manually verify:
+
+* `docs/getting-started.md` contains demo steps
+* `docs/local-bus.md` explains the architecture simply
+* the limitations are clearly listed
+* a newcomer could understand what Sprint 1 already does
+
+That is enough to satisfy the acceptance criteria.
