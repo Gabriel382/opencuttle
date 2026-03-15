@@ -94,3 +94,29 @@ def test_dispatch_to_unknown_target_fails() -> None:
         assert False, "Expected dispatch to fail for missing target"
     except NodeNotFoundError as exc:
         assert "not registered" in str(exc).lower()
+
+
+
+    
+def test_send_routes_by_target_name() -> None:
+    bus = LocalBus()
+    node_b = EchoNode(name="node-b")
+    bus.register_node(node_b)
+
+    message = make_message(sender="node-a", target="node-b")
+    response = bus.send(message)
+
+    assert response["sender"] == "node-b"
+    assert response["target"] == "node-a"
+
+
+def test_unknown_target_returns_clear_error() -> None:
+    bus = LocalBus()
+    message = make_message(sender="node-a", target="missing-node")
+
+    try:
+        bus.send(message)
+        assert False, "Expected send() to fail for missing target"
+    except NodeNotFoundError as exc:
+        assert "missing-node" in str(exc)
+        assert "not registered" in str(exc).lower()
