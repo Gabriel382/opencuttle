@@ -54,6 +54,31 @@ It currently supports:
 
 The goal of v0 is to prove the smallest working OpenCuttle runtime.
 
+## Dispatch flow
+
+OpenCuttle local bus v0 dispatches messages synchronously by target node name.
+
+### Current flow
+
+1. validate incoming message
+2. resolve the target node from the local registry
+3. raise a clear error if the target does not exist
+4. call the target node synchronously
+5. validate the returned response envelope
+6. return the response to the caller
+
+### Unknown target behavior
+
+If a message targets a node that is not registered in the local bus, OpenCuttle raises a clear local bus error.
+
+### Logging
+
+The v0 local bus emits minimal log events for:
+- node registration
+- message dispatch
+- missing target errors
+- response generation
+
 ## Status
 
 This document is a stub and will evolve during the Local Bus milestone.

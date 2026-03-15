@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 # Standard library imports
+import logging
 from dataclasses import dataclass
 from typing import Protocol, Any
 
 # Local imports
-from core.message_ids import generate_message_id, generate_task_id
+from core.message_ids import generate_message_id
 from core.message_validator import validate_message_envelope
+
+
+logger = logging.getLogger(__name__)
 
 
 class LocalBusError(Exception):
@@ -24,10 +28,6 @@ class NodeNotFoundError(LocalBusError):
 class BusNode(Protocol):
     """
     Protocol for a minimal OpenCuttle node.
-
-    A node must expose:
-    - a unique name
-    - a synchronous message handler
     """
 
     name: str
@@ -57,14 +57,6 @@ class LocalBus:
     def register_node(self, node: BusNode) -> None:
         """
         Register a node in the local bus.
-
-        Args:
-            node:
-                The node to register.
-
-        Raises:
-            NodeAlreadyRegisteredError:
-                If another node with the same name is already registered.
         """
         if node.name in self.nodes:
             raise NodeAlreadyRegisteredError(
@@ -72,46 +64,73 @@ class LocalBus:
             )
 
         self.nodes[node.name] = node
+        logger.info("Registered node '%s'", node.name)
 
     def has_node(self, node_name: str) -> bool:
         """
         Check whether a node is registered.
-
-        Args:
-            node_name:
-                The node name to look up.
-
-        Returns:
-            True if the node exists, otherwise False.
         """
         return node_name in self.nodes
+
+    def send(self, message: dict[str, Any]) -> dict[str, Any]:
+        """
+        Friendlier alias for dispatch().
+
+        Args:
+            message:
+                The validated message envelope to send.
+
+        Returns:
+            The response envelope returned by the target node.
+        """
+        return self.dispatch(message)
 
     def dispatch(self, message: dict[str, Any]) -> dict[str, Any]:
         """
         Dispatch a validated message to its target node.
 
-        Args:
-            message:
-                The message envelope to dispatch.
-
-        Returns:
-            The target node's response envelope.
-
-        Raises:
-            NodeNotFoundError:
-                If the target node is not registered.
+        Flow:
+        1. validate incoming message
+        2. resolve target node by name
+        3. raise a clear error if target is missing
+        4. call the target synchronously
+        5. validate response envelope
+        6. return response
         """
         validate_message_envelope(message)
 
+        sender = message["sender"]
         target = message["target"]
+        message_id = message["id"]
+        task_id = message["task_id"]
+
+        logger.info(
+            "Dispatching message id=%s task_id=%s sender=%s target=%s",
+            message_id,
+            task_id,
+            sender,
+            target,
+        )
 
         if target not in self.nodes:
+            logger.error(
+                "Dispatch failed for message id=%s: target node '%s' is not registered",
+                message_id,
+                target,
+            )
             raise NodeNotFoundError(
                 f"Target node '{target}' is not registered in the local bus."
             )
 
         response = self.nodes[target].handle_message(message)
         validate_message_envelope(response)
+
+        logger.info(
+            "Response generated for message id=%s by node=%s",
+            message_id,
+            target,
+        )
+
         return response
 
 
@@ -119,8 +138,6 @@ class LocalBus:
 class EchoNode:
     """
     Minimal demo node used for local bus testing.
-
-    It returns a simple response containing the incoming payload.
     """
 
     name: str
@@ -128,13 +145,6 @@ class EchoNode:
     def handle_message(self, message: dict[str, Any]) -> dict[str, Any]:
         """
         Return a simple response envelope.
-
-        Args:
-            message:
-                The incoming validated message.
-
-        Returns:
-            A response envelope.
         """
         return {
             "id": generate_message_id(),

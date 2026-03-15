@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # Standard library imports
 from datetime import datetime, UTC
+import logging
 
 # Local imports
 from core.local_bus import LocalBus, EchoNode
@@ -12,13 +13,13 @@ def main() -> None:
     """
     Run the minimal OpenCuttle local bus demo.
     """
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s | %(name)s | %(message)s")
+
     bus = LocalBus()
 
-    # Create and register a demo target node.
     node_b = EchoNode(name="node-b")
     bus.register_node(node_b)
 
-    # Build a valid message from a logical sender to the registered target.
     message = {
         "id": generate_message_id(),
         "task_id": generate_task_id(),
@@ -38,7 +39,7 @@ def main() -> None:
     print("==> Dispatching message through OpenCuttle local bus")
     print(message)
 
-    response = bus.dispatch(message)
+    response = bus.send(message)
 
     print("\n==> Response received")
     print(response)
