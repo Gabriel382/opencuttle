@@ -1,36 +1,27 @@
-# Node Manifest
+# Node Manifest and Registry
 
-This document defines the OpenCuttle node manifest used to describe registered nodes.
+This document explains how OpenCuttle describes and stores node metadata in Sprint 2.
 
 ## Purpose
 
-The node manifest is the standard metadata contract for OpenCuttle nodes.
+OpenCuttle separates two things:
 
-It gives the system a consistent way to describe:
-- identity
-- category
-- capabilities
-- routing hints
-- optional persona and memory metadata
+- **runtime nodes** — the actual Python objects that receive and handle messages
+- **node manifests** — the metadata that describes those nodes
 
-This manifest will later support:
-- node registry
-- CLI inspection
-- adapters
-- routing policies
-- orchestration
+This makes it possible to:
+- inspect nodes without touching runtime internals
+- build a registry of available nodes
+- support future CLI inspection
+- prepare for routing, adapters, and orchestration later
 
-## v0 design goals
+## What is a node manifest?
 
-The v0 node manifest is intentionally small.
+A node manifest is a small structured document that describes one node.
 
-It should:
-- describe a node clearly
-- be easy to validate
-- be easy to inspect from code or CLI
-- avoid committing too early to advanced concepts
+In OpenCuttle v0, it is intentionally small and stable.
 
-## Required fields
+### Required fields
 
 - `name`
 - `type`
@@ -38,7 +29,7 @@ It should:
 - `skills`
 - `tags`
 
-## Optional fields
+### Optional fields
 
 - `model`
 - `version`
@@ -50,11 +41,6 @@ It should:
 
 ### `name`
 Unique logical node name.
-
-Recommended style:
-- lowercase
-- kebab-case
-- stable across runs where possible
 
 Example:
 
@@ -75,7 +61,7 @@ Allowed v0 values:
 
 ### `description`
 
-Short human-readable description of the node.
+Short human-readable explanation of what the node does.
 
 ### `skills`
 
@@ -99,11 +85,11 @@ Example:
 
 ### `model`
 
-Optional model or backend label.
+Optional backend or model label.
 
 ### `version`
 
-Optional node version string.
+Optional node version.
 
 ### `priority`
 
@@ -111,7 +97,7 @@ Optional integer hint for future routing.
 
 ### `persona`
 
-Optional short profile/persona label.
+Optional persona/profile label.
 
 ### `memory_scope`
 
@@ -141,107 +127,99 @@ Allowed v0 values:
 }
 ```
 
-## Why the v0 schema is small
+## What is the node registry?
 
-The first node manifest is intentionally minimal so it can stay stable while the registry and CLI are being built.
+The node registry is the dedicated metadata layer for OpenCuttle nodes.
 
-Not included yet:
+Its role is to:
 
-* cost hints
-* latency hints
-* trust boundaries
-* permissions
-* health
-* streaming capabilities
-* adapter-specific settings
+* store validated node manifests
+* retrieve manifests by name
+* list all registered manifests
+* reject duplicate node names
 
-These can be added later once the registry and routing layers mature.
+The registry is intentionally independent of:
 
-````
+* the CLI
+* the orchestrator
+* persistence
+* adapters
 
-# Optional docs index update
+In Sprint 2, it is still local and in-memory only.
 
-If you have `docs/README.md`, add:
+## How node registration works in Sprint 2
 
-```md
-- [Node Manifest](node-manifest.md)
-````
+In Sprint 2, node registration happens in two layers:
 
-# How to validate it
+1. the **local bus** stores the runtime node object for dispatch
+2. the **node registry** stores the node manifest for inspection
 
-There are two practical validation levels here.
+So when a node is registered:
 
-## 1. Manual structure check
+* it becomes available to receive messages through the local bus
+* its metadata becomes available through the registry
 
-Verify:
+## Registration flow
 
-* `core/node_manifest_schema.json` exists
-* `docs/node-manifest.md` exists
-* the docs include one example manifest
-* required and optional fields are clearly separated
+The current registration flow is:
 
-## 2. JSON Schema validation check
+1. create a runtime node object
+2. create or provide a node manifest
+3. call `LocalBus.register_node(...)`
+4. the bus stores the runtime node
+5. the registry stores the validated manifest
 
-If you want to validate it the same way you validated message envelopes, add a tiny temporary script or a future validator. For now, even a quick Python check is enough once you have `jsonschema` installed:
-
-```bash
-python3
-```
+## Example registration flow
 
 ```python
-import json
-from jsonschema import Draft202012Validator
+from core.local_bus import LocalBus, EchoNode
 
-with open("core/node_manifest_schema.json", "r", encoding="utf-8") as f:
-    schema = json.load(f)
+bus = LocalBus()
+node = EchoNode(name="node-b")
 
 manifest = {
-    "name": "demo-echo-node",
+    "name": "node-b",
     "type": "node",
-    "description": "Minimal reference node that echoes received payloads",
-    "skills": ["echo", "demo", "local-testing"],
-    "tags": ["local", "demo", "reference"],
+    "description": "Explicit demo node manifest",
+    "skills": ["echo", "demo"],
+    "tags": ["local", "reference"],
     "model": "none",
     "version": "0.1.0",
-    "priority": 10,
+    "priority": 5,
     "persona": "friendly-demo",
-    "memory_scope": "none"
+    "memory_scope": "none",
 }
 
-Draft202012Validator(schema).validate(manifest)
-print("manifest ok")
+bus.register_node(node, manifest=manifest)
 ```
 
-If it prints `manifest ok`, the schema and example align. Draft 2020-12 validation is the correct match for this schema style. ([JSON Schema][3])
+## Why this matters
 
+This separation between runtime node and metadata registry is important because it prepares OpenCuttle for:
 
-## Registry basics
+* CLI inspection
+* adapters
+* routing policies
+* node summaries
+* orchestration later
 
-OpenCuttle stores node metadata in a dedicated in-memory registry.
+## Current limitations
 
-The v0 registry supports:
-- manifest registration
-- lookup by node name
-- listing all registered manifests
-- duplicate-name rejection
+Sprint 2 is still intentionally small.
 
-The registry is intentionally independent of the CLI and orchestration layers.
+Current limitations:
 
-## Registry integration
+* registry is in-memory only
+* no persistence yet
+* no health model yet
+* no trust boundary metadata yet
+* no advanced capability scoring yet
+* no orchestrator integration yet
 
-In Sprint 2, node registration in the local bus also registers node metadata in the dedicated node registry.
+## Summary
 
-This means OpenCuttle now stores:
-- runtime node objects for dispatch
-- metadata manifests for inspection
+In Sprint 2:
 
-The runtime and metadata layers are still local and in-memory in v0.
-
-## Inspection helpers
-
-OpenCuttle v0 provides simple inspection helpers from code:
-
-- `get_node(name)` — retrieve a runtime node object
-- `list_nodes()` — list all runtime node objects
-- `get_node_summary(name)` — combine runtime and manifest metadata
-- `format_node_summary(name)` — render a readable summary for future CLI use
+* the **local bus** is responsible for runtime dispatch
+* the **node registry** is responsible for metadata storage
+* the **node manifest** is the contract describing a node
