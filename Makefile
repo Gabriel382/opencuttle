@@ -71,3 +71,7 @@ node-list:
 task-run:
 	@echo "==> Running OpenCuttle task"
 	@PYTHONPATH=. $(PYTHON) -m cli.main task run "hello opencuttle"
+
+node-registration-example:
+	@echo "==> Running OpenCuttle node registration example"
+	@PYTHONPATH=. $(PYTHON) examples/node_registration_example.py

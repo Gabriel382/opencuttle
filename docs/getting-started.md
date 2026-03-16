@@ -196,6 +196,20 @@ PYTHONPATH=. python3 -m cli.main task run "hello opencuttle"
 
 ---
 
+## Node registration example
+
+A minimal example showing how a node is registered with the local bus and node registry is available in:
+
+```text
+examples/node_registration_example.py
+```
+
+Run it with:
+
+```bash
+PYTHONPATH=. python3 examples/node_registration_example.py
+```
+
 # How to validate it
 
 Check these manually:
