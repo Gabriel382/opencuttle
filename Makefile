@@ -82,3 +82,10 @@ demo:
 		echo "Create it as part of Milestone 3."; \
 		exit 1; \
 	fi
+
+cli:
+	@echo "==> Running OpenCuttle CLI"
+	@PYTHONPATH=. $(PYTHON) -m cli.main --help
+
+help-cli:
+	@PYTHONPATH=. $(PYTHON) -m cli.main --help
