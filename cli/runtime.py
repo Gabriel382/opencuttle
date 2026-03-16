@@ -7,6 +7,7 @@ from typing import Any
 # Local imports
 from core.local_bus import EchoNode, LocalBus
 from core.message_ids import generate_message_id, generate_task_id
+from core.demo_node import DemoEchoNode
 
 
 def build_default_local_bus() -> LocalBus:
@@ -18,20 +19,9 @@ def build_default_local_bus() -> LocalBus:
     """
     bus = LocalBus()
 
-    demo_manifest = {
-        "name": "node-b",
-        "type": "node",
-        "description": "Explicit demo node manifest",
-        "skills": ["echo", "demo"],
-        "tags": ["local", "reference"],
-        "model": "none",
-        "version": "0.1.0",
-        "priority": 5,
-        "persona": "friendly-demo",
-        "memory_scope": "none",
-    }
-
-    bus.register_node(EchoNode(name="node-b"), manifest=demo_manifest)
+    node = DemoEchoNode(name="node-b")
+    bus.register_node(node, manifest=node.manifest)
+    
     return bus
 
 

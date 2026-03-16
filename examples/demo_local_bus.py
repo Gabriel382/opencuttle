@@ -6,9 +6,9 @@ import logging
 from typing import Any
 
 # Local imports
-from core.local_bus import LocalBus, EchoNode
+from core.local_bus import LocalBus
 from core.message_ids import generate_message_id, generate_task_id
-
+from core.demo_node import DemoEchoNode
 
 def build_demo_message(sender: str, target: str) -> dict[str, Any]:
     """
@@ -48,12 +48,12 @@ def run_demo() -> dict[str, Any]:
     bus = LocalBus()
 
     node_a_name = "node-a"
-    node_b = EchoNode(name="node-b")
+    node_b = DemoEchoNode(name="node-b")
 
     print(f"Creating node A: {node_a_name}")
     print(f"Creating node B: {node_b.name}")
 
-    bus.register_node(node_b)
+    bus.register_node(node_b, manifest=node_b.manifest)
 
     print("\nRegistered node manifests:")
     for manifest in bus.list_node_manifests():

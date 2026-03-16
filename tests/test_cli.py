@@ -51,9 +51,9 @@ def test_node_inspect_valid_name_returns_details(capsys) -> None:
 
     assert exit_code == 0
     assert '"name": "node-b"' in captured.out
-    assert '"runtime_class": "EchoNode"' in captured.out
+    assert '"runtime_class": "DemoEchoNode"' in captured.out
     assert '"manifest"' in captured.out
-    assert '"description": "Explicit demo node manifest"' in captured.out
+    assert '"description": "Official OpenCuttle reference demo node that echoes received payloads"' in captured.out
 
 
 def test_node_inspect_missing_name_fails_clearly(capsys) -> None:
