@@ -8,7 +8,7 @@ from typing import Any
 # Local imports
 from core.local_bus import LocalBus
 from core.message_ids import generate_message_id, generate_task_id
-from core.demo_node import DemoEchoNode
+from examples.demo_node import DemoEchoNode
 
 def build_demo_message(sender: str, target: str) -> dict[str, Any]:
     """
