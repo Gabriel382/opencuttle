@@ -87,6 +87,17 @@ Current limitations:
 * **no adapters yet** — external systems like Ollama, MCP, A2A, or OpenClaw are not connected yet
 * **no orchestrator yet** — there is no central routing brain beyond direct target-based dispatch
 
+
+## CLI preview
+
+OpenCuttle now includes an initial CLI structure.
+
+You can inspect the current CLI help with:
+
+```bash
+PYTHONPATH=. python3 -m cmd.cli --help
+````
+
 ## Next steps
 
 * Read the [Architecture](architecture.md)
