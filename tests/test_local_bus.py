@@ -193,3 +193,63 @@ def test_unknown_target_behavior() -> None:
     except NodeNotFoundError as exc:
         assert "missing-node" in str(exc)
         assert "not registered" in str(exc).lower()
+
+
+def test_register_node_adds_manifest_to_registry() -> None:
+    """
+    Registering a node in the local bus should also register its manifest.
+    """
+    bus = LocalBus()
+    node = EchoNode(name="node-b")
+
+    bus.register_node(node)
+
+    manifest = bus.get_node_manifest("node-b")
+
+    assert manifest["name"] == "node-b"
+    assert manifest["type"] == "node"
+    assert "tags" in manifest
+    assert "skills" in manifest
+
+
+def test_register_node_with_explicit_manifest_preserves_metadata() -> None:
+    """
+    Explicit manifests should be stored without losing metadata.
+    """
+    bus = LocalBus()
+    node = EchoNode(name="node-b")
+
+    manifest = {
+        "name": "node-b",
+        "type": "node",
+        "description": "Explicit demo node manifest",
+        "skills": ["echo", "demo"],
+        "tags": ["local", "reference"],
+        "model": "none",
+        "version": "0.1.0",
+        "priority": 5,
+        "persona": "friendly-demo",
+        "memory_scope": "none",
+    }
+
+    bus.register_node(node, manifest=manifest)
+
+    stored = bus.get_node_manifest("node-b")
+
+    assert stored["description"] == "Explicit demo node manifest"
+    assert stored["skills"] == ["echo", "demo"]
+    assert stored["persona"] == "friendly-demo"
+
+
+def test_list_node_manifests_returns_registered_nodes() -> None:
+    """
+    The local bus registry view should list all registered manifests.
+    """
+    bus = LocalBus()
+    bus.register_node(EchoNode(name="node-a"))
+    bus.register_node(EchoNode(name="node-b"))
+
+    manifests = bus.list_node_manifests()
+    names = {manifest["name"] for manifest in manifests}
+
+    assert names == {"node-a", "node-b"}

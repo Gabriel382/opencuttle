@@ -54,6 +54,9 @@ def main() -> None:
     # Register only the receiving node in the bus.
     # Node A is represented as the logical sender in this minimal demo.
     bus.register_node(node_b)
+    print("\nRegistered node manifests:")
+    for manifest in bus.list_node_manifests():
+        print(manifest)
 
     # Build the message sent from node A to node B.
     message = build_demo_message(sender=node_a_name, target=node_b.name)
