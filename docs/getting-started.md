@@ -74,6 +74,14 @@ You can inspect the currently registered local nodes with:
 PYTHONPATH=. python3 -m cli.main node list
 ```
 
+## Inspect one node
+
+You can inspect one registered node by name:
+
+```bash
+PYTHONPATH=. python3 -m cli.main node inspect node-b
+```
+
 ## What the current demo proves
 
 The Sprint 1 demo proves that OpenCuttle already has a working local runtime loop:

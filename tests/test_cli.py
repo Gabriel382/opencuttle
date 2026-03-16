@@ -44,3 +44,23 @@ def test_node_list_output_is_readable(capsys) -> None:
     assert "description:" in captured.out.lower()
     assert "skills:" in captured.out.lower()
     assert "tags:" in captured.out.lower()
+
+def test_node_inspect_valid_name_returns_details(capsys) -> None:
+    exit_code = main(["node", "inspect", "node-b"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert '"name": "node-b"' in captured.out
+    assert '"runtime_class": "EchoNode"' in captured.out
+    assert '"manifest"' in captured.out
+    assert '"description": "Explicit demo node manifest"' in captured.out
+
+
+def test_node_inspect_missing_name_fails_clearly(capsys) -> None:
+    exit_code = main(["node", "inspect", "missing-node"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "node inspection error" in captured.out.lower()
+    assert "missing-node" in captured.out
+    assert "not found" in captured.out.lower()

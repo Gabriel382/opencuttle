@@ -8,6 +8,7 @@ from typing import Sequence
 # Local imports
 from examples.demo_local_bus import run_demo
 from cli.runtime import build_default_local_bus
+from core.local_bus import RuntimeNodeNotFoundError
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -131,8 +132,24 @@ def handle_node_list(args: argparse.Namespace) -> int:
 
 
 def handle_node_inspect(args: argparse.Namespace) -> int:
-    print(f"`opencuttle node inspect {args.name}` will be implemented in Issue 24.")
-    return 0
+    """
+    Inspect one registered node by name.
+
+    Returns:
+        Process exit code.
+    """
+    try:
+        bus = build_default_local_bus()
+        output = bus.format_node_summary(args.name)
+        print(output)
+        return 0
+
+    except RuntimeNodeNotFoundError:
+        print(f"OpenCuttle node inspection error: node '{args.name}' was not found.")
+        return 1
+    except Exception as exc:
+        print(f"OpenCuttle node inspection error: {exc}")
+        return 1
 
 
 def handle_task_run(args: argparse.Namespace) -> int:
