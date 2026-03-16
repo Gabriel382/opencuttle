@@ -1,10 +1,25 @@
+Perfect. For **Issue 27**, the job is to make the CLI **discoverable, copy-pasteable, and honest about what is implemented versus still stubbed**. That fits both GitHub’s general documentation guidance and Python’s `argparse` model, which is specifically meant to create user-friendly CLIs with built-in help and subcommands. ([GitHub Docs][1])
+
+## What to update
+
+I would update **`docs/getting-started.md`** and optionally add a small **CLI section to `README.md`**.
+
+The most important doc is `docs/getting-started.md`, because this issue is about helping a newcomer actually run the CLI.
+
+---
+
+# Recommended `docs/getting-started.md`
+
+Use this as the updated version:
+
+````md
 # Getting Started
 
 This guide explains how to set up and run OpenCuttle locally.
 
-## What exists in Sprint 1
+## What exists right now
 
-At the end of Sprint 1, OpenCuttle includes:
+At the current stage, OpenCuttle includes:
 
 - a professional repository structure
 - a Make-based developer workflow
@@ -14,8 +29,11 @@ At the end of Sprint 1, OpenCuttle includes:
 - message and task ID helpers
 - a minimal in-memory local bus
 - a two-node demo
+- a first CLI structure
+- a node registry
+- node inspection helpers
 
-This is the first working version of OpenCuttle.
+This is still an early local-first prototype, but it is already runnable.
 
 ## Prerequisites
 
@@ -50,9 +68,74 @@ make test
 make lint
 ```
 
+## CLI overview
+
+OpenCuttle now includes a first CLI.
+
+You can inspect its help with:
+
+```bash
+PYTHONPATH=. python3 -m cli.main --help
+```
+
+Current CLI command groups:
+
+* `run`
+* `node`
+* `task`
+* `logs`
+
+## CLI examples
+
+### Show CLI help
+
+```bash
+PYTHONPATH=. python3 -m cli.main --help
+```
+
+### Run the current local runtime
+
+```bash
+PYTHONPATH=. python3 -m cli.main run
+```
+
+This currently runs the local two-node demo/runtime flow.
+
+### List registered nodes
+
+```bash
+PYTHONPATH=. python3 -m cli.main node list
+```
+
+This shows the currently registered nodes from the local runtime context.
+
+### Inspect one node
+
+```bash
+PYTHONPATH=. python3 -m cli.main node inspect node-b
+```
+
+This prints readable metadata for one registered node.
+
+### Run one simple task
+
+```bash
+PYTHONPATH=. python3 -m cli.main task run "hello opencuttle"
+```
+
+This sends a simple text task through the current local demo/runtime path and prints the response.
+
+### Show log guidance
+
+```bash
+PYTHONPATH=. python3 -m cli.main logs
+```
+
+This explains the current log situation in v0.
+
 ## Run the first demo
 
-Run:
+You can still run the standalone demo with:
 
 ```bash
 make demo
@@ -66,72 +149,81 @@ This demo shows:
 * node B returning a response
 * minimal logs printed in the terminal
 
-## List registered nodes
+## What the current CLI actually does
 
-You can inspect the currently registered local nodes with:
+The CLI is real, but still intentionally small.
 
-```bash
-PYTHONPATH=. python3 -m cli.main node list
-```
+At this stage:
 
-## Inspect one node
-
-You can inspect one registered node by name:
-
-```bash
-PYTHONPATH=. python3 -m cli.main node inspect node-b
-```
-
-## Run a simple task through the CLI
-
-You can run a simple text task through the current local runtime:
-
-```bash
-PYTHONPATH=. python3 -m cli.main task run "hello opencuttle"
-```
-
-## Logs
-
-You can inspect the current logging guidance with:
-
-```bash
-PYTHONPATH=. python3 -m cli.main logs
-```
-
-## What the current demo proves
-
-The Sprint 1 demo proves that OpenCuttle already has a working local runtime loop:
-
-1. create a valid message envelope
-2. send it through the local bus
-3. resolve the target node
-4. execute the target synchronously
-5. return a validated response
+* `run` uses the current local demo/runtime flow
+* `node list` inspects the local in-memory runtime context
+* `node inspect` prints full metadata for one registered node
+* `task run` sends a simple text task through the local bus
+* `logs` explains current terminal-only logging behavior
 
 ## Current limitations
 
-Sprint 1 is intentionally small.
+OpenCuttle is still in an early local-first stage.
 
-Current limitations:
+Current limitations include:
 
-* **in-memory only** — the bus lives only inside the current Python process
-* **no persistence** — messages, nodes, and task history are not stored yet
+* **in-memory only** — the bus and registry live only inside the current Python process
+* **no persistence** — no stored task history, registry state, or replay yet
 * **no adapters yet** — external systems like Ollama, MCP, A2A, or OpenClaw are not connected yet
-* **no orchestrator yet** — there is no central routing brain beyond direct target-based dispatch
+* **no orchestrator yet** — CLI task execution still uses the current demo/local bus path
+* **no persisted logs yet** — logs are currently visible only during command execution
+* **CLI still partial** — some commands are implemented minimally and will evolve in later milestones
 
+## Recommended first steps
 
-## CLI preview
+If you are new to OpenCuttle, try this order:
 
-OpenCuttle now includes an initial CLI structure.
+1. inspect the CLI help
+2. run the local runtime
+3. list registered nodes
+4. inspect one node
+5. run a simple task
 
-You can inspect the current CLI help with:
+Example sequence:
 
 ```bash
-PYTHONPATH=. python3 -m cmd.cli --help
-````
+PYTHONPATH=. python3 -m cli.main --help
+PYTHONPATH=. python3 -m cli.main run
+PYTHONPATH=. python3 -m cli.main node list
+PYTHONPATH=. python3 -m cli.main node inspect node-b
+PYTHONPATH=. python3 -m cli.main task run "hello opencuttle"
+```
+
+---
+
+# How to validate it
+
+Check these manually:
+
+1. `docs/getting-started.md` contains real CLI examples
+2. a newcomer can copy-paste at least:
+   - `PYTHONPATH=. python3 -m cli.main --help`
+   - `PYTHONPATH=. python3 -m cli.main run`
+   - `PYTHONPATH=. python3 -m cli.main node list`
+3. the limitations are clearly written
+4. the docs do not imply features that are not implemented yet
+
+You can also sanity check the actual commands:
+
+```bash
+PYTHONPATH=. .venv/bin/python -m cli.main --help
+PYTHONPATH=. .venv/bin/python -m cli.main run
+PYTHONPATH=. .venv/bin/python -m cli.main node list
+PYTHONPATH=. .venv/bin/python -m cli.main node inspect node-b
+PYTHONPATH=. .venv/bin/python -m cli.main task run "hello opencuttle"
+PYTHONPATH=. .venv/bin/python -m cli.main logs
+```
+
+If those all work and the docs match them, the issue is done.
 
 ## Next steps
 
 * Read the [Architecture](architecture.md)
 * Read the [Message Envelope](message-envelope.md)
 * Read the [Local Bus](local-bus.md)
+* Read the [Node Manifest and Registry](node-manifest.md)

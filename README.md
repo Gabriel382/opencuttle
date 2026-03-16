@@ -312,6 +312,31 @@ constraints:
 
 ---
 
+## CLI v0
+
+OpenCuttle includes an initial CLI built around a local-first runtime.
+
+Try the current commands:
+
+```bash
+PYTHONPATH=. python3 -m cli.main --help
+PYTHONPATH=. python3 -m cli.main run
+PYTHONPATH=. python3 -m cli.main node list
+PYTHONPATH=. python3 -m cli.main node inspect node-b
+PYTHONPATH=. python3 -m cli.main task run "hello opencuttle"
+PYTHONPATH=. python3 -m cli.main logs
+```
+
+Current limitations:
+
+* local and in-memory only
+* no persistence yet
+* no adapters yet
+* task execution still uses the demo/runtime path
+
+---
+
+
 ## Memory model
 
 OpenCuttle supports multiple memory scopes:
