@@ -82,3 +82,14 @@ def test_task_run_without_text_fails_clearly(capsys) -> None:
     assert exit_code == 1
     assert "please provide task text" in captured.out.lower()
     assert "example:" in captured.out.lower()
+
+
+def test_logs_command_exists_and_is_honest(capsys) -> None:
+    exit_code = main(["logs"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "opencuttle logs" in captured.out.lower()
+    assert "terminal" in captured.out.lower()
+    assert "not implemented yet" in captured.out.lower()
+    assert "planned future direction" in captured.out.lower()

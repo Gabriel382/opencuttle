@@ -180,7 +180,28 @@ def handle_task_run(args: argparse.Namespace) -> int:
 
 
 def handle_logs(args: argparse.Namespace) -> int:
-    print("`opencuttle logs` will be implemented in Issue 26.")
+    """
+    Show the current logging situation for OpenCuttle v0.
+
+    Returns:
+        Process exit code.
+    """
+    print("OpenCuttle logs (v0)\n")
+    print("Current status:")
+    print("- OpenCuttle currently emits runtime logs directly to the terminal.")
+    print("- Logs are visible when running commands like `opencuttle run` or `make demo`.")
+    print("- Persisted log storage is not implemented yet.")
+    print("- Historical log inspection is not available yet.\n")
+
+    print("How to see logs right now:")
+    print("- Run `opencuttle run` to see the current local runtime flow.")
+    print("- Run `make demo` to see the two-node local bus demo logs.\n")
+
+    print("Planned future direction:")
+    print("- store execution logs")
+    print("- expose recent runtime history")
+    print("- connect logs to traces and task inspection")
+
     return 0
 
 def format_manifest_list_item(manifest: dict) -> str:
