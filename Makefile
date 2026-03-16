@@ -67,3 +67,7 @@ help-cli:
 node-list:
 	@echo "==> Listing OpenCuttle nodes"
 	@PYTHONPATH=. $(PYTHON) -m cli.main node list
+
+task-run:
+	@echo "==> Running OpenCuttle task"
+	@PYTHONPATH=. $(PYTHON) -m cli.main task run "hello opencuttle"

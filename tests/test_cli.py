@@ -64,3 +64,21 @@ def test_node_inspect_missing_name_fails_clearly(capsys) -> None:
     assert "node inspection error" in captured.out.lower()
     assert "missing-node" in captured.out
     assert "not found" in captured.out.lower()
+
+def test_task_run_executes_simple_text_task(capsys) -> None:
+    exit_code = main(["task", "run", "hello opencuttle"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "running simple task through the current local runtime" in captured.out.lower()
+    assert "task response" in captured.out.lower()
+    assert "hello opencuttle" in captured.out
+
+
+def test_task_run_without_text_fails_clearly(capsys) -> None:
+    exit_code = main(["task", "run"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 1
+    assert "please provide task text" in captured.out.lower()
+    assert "example:" in captured.out.lower()

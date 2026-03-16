@@ -7,8 +7,8 @@ from typing import Sequence
 
 # Local imports
 from examples.demo_local_bus import run_demo
-from cli.runtime import build_default_local_bus
 from core.local_bus import RuntimeNodeNotFoundError
+from cli.runtime import build_default_local_bus, run_simple_task
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -153,9 +153,30 @@ def handle_node_inspect(args: argparse.Namespace) -> int:
 
 
 def handle_task_run(args: argparse.Namespace) -> int:
-    text = args.text if args.text else "<no task text provided>"
-    print(f"`opencuttle task run` will be implemented in Issue 25. Input: {text}")
-    return 0
+    """
+    Run one simple text task through the current local OpenCuttle runtime.
+
+    Returns:
+        Process exit code.
+    """
+    if not args.text:
+        print("OpenCuttle task error: please provide task text.")
+        print('Example: opencuttle task run "hello opencuttle"')
+        return 1
+
+    print("Running simple task through the current local runtime...\n")
+    print("Note: this currently uses the demo/local bus path, not a full orchestrator.\n")
+
+    try:
+        response = run_simple_task(args.text)
+
+        print("Task response:\n")
+        print(response)
+        return 0
+
+    except Exception as exc:
+        print(f"OpenCuttle task error: {exc}")
+        return 1
 
 
 def handle_logs(args: argparse.Namespace) -> int:
