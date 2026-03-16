@@ -90,6 +90,14 @@ You can run a simple text task through the current local runtime:
 PYTHONPATH=. python3 -m cli.main task run "hello opencuttle"
 ```
 
+## Logs
+
+You can inspect the current logging guidance with:
+
+```bash
+PYTHONPATH=. python3 -m cli.main logs
+```
+
 ## What the current demo proves
 
 The Sprint 1 demo proves that OpenCuttle already has a working local runtime loop:
