@@ -82,6 +82,14 @@ You can inspect one registered node by name:
 PYTHONPATH=. python3 -m cli.main node inspect node-b
 ```
 
+## Run a simple task through the CLI
+
+You can run a simple text task through the current local runtime:
+
+```bash
+PYTHONPATH=. python3 -m cli.main task run "hello opencuttle"
+```
+
 ## What the current demo proves
 
 The Sprint 1 demo proves that OpenCuttle already has a working local runtime loop:
