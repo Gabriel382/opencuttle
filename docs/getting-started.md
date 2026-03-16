@@ -66,6 +66,14 @@ This demo shows:
 * node B returning a response
 * minimal logs printed in the terminal
 
+## List registered nodes
+
+You can inspect the currently registered local nodes with:
+
+```bash
+PYTHONPATH=. python3 -m cli.main node list
+```
+
 ## What the current demo proves
 
 The Sprint 1 demo proves that OpenCuttle already has a working local runtime loop:
