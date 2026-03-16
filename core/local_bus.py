@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Protocol, Any
+import json
 
 # Local imports
 from core.message_ids import generate_message_id
@@ -14,12 +15,15 @@ from core.node_registry import (
 )
 
 
+
 logger = logging.getLogger(__name__)
 
 
 class LocalBusError(Exception):
     """Raised when the local bus cannot complete an operation."""
 
+class RuntimeNodeNotFoundError(LocalBusError):
+    """Raised when a runtime node object cannot be found in the bus."""
 
 class NodeAlreadyRegisteredError(LocalBusError):
     """Raised when trying to register a node name that already exists."""
@@ -198,6 +202,78 @@ class LocalBus:
         )
 
         return response
+    
+    def get_node(self, node_name: str) -> BusNode:
+        """
+        Retrieve a registered runtime node object by name.
+
+        Args:
+            node_name:
+                The runtime node name to retrieve.
+
+        Returns:
+            The runtime node object.
+
+        Raises:
+            RuntimeNodeNotFoundError:
+                If the node is not registered in the local bus.
+        """
+        if node_name not in self.nodes:
+            raise RuntimeNodeNotFoundError(
+                f"Runtime node '{node_name}' is not registered in the local bus."
+            )
+
+        return self.nodes[node_name]
+
+
+    def list_nodes(self) -> list[BusNode]:
+        """
+        List all registered runtime node objects.
+
+        Returns:
+            A list of registered runtime nodes.
+        """
+        return list(self.nodes.values())
+
+
+    def get_node_summary(self, node_name: str) -> dict[str, Any]:
+        """
+        Build a CLI-friendly summary of a registered node.
+
+        This combines:
+        - runtime identity from the bus
+        - metadata from the node registry
+
+        Args:
+            node_name:
+                The node name to inspect.
+
+        Returns:
+            A summary dictionary suitable for CLI or docs output.
+        """
+        node = self.get_node(node_name)
+        manifest = self.get_node_manifest(node_name)
+
+        return {
+            "name": node.name,
+            "runtime_class": node.__class__.__name__,
+            "manifest": manifest,
+        }
+
+
+    def format_node_summary(self, node_name: str) -> str:
+        """
+        Return a human-readable string summary of a registered node.
+
+        Args:
+            node_name:
+                The node name to inspect.
+
+        Returns:
+            Pretty-printed JSON summary for future CLI use.
+        """
+        summary = self.get_node_summary(node_name)
+        return json.dumps(summary, indent=2, ensure_ascii=False)
 
 
 @dataclass

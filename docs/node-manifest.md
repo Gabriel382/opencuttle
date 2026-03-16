@@ -236,3 +236,12 @@ This means OpenCuttle now stores:
 - metadata manifests for inspection
 
 The runtime and metadata layers are still local and in-memory in v0.
+
+## Inspection helpers
+
+OpenCuttle v0 provides simple inspection helpers from code:
+
+- `get_node(name)` — retrieve a runtime node object
+- `list_nodes()` — list all runtime node objects
+- `get_node_summary(name)` — combine runtime and manifest metadata
+- `format_node_summary(name)` — render a readable summary for future CLI use
