@@ -2,16 +2,14 @@ from __future__ import annotations
 
 # Standard library imports
 import argparse
+import sys
 from typing import Sequence
+
+# Local imports
+from examples.demo_local_bus import run_demo
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """
-    Build the root OpenCuttle CLI parser.
-
-    Returns:
-        The configured ArgumentParser instance.
-    """
     parser = argparse.ArgumentParser(
         prog="opencuttle",
         description="OpenCuttle CLI — local-first orchestration bus for heterogeneous agent systems.",
@@ -19,7 +17,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
 
-    # `opencuttle run`
     run_parser = subparsers.add_parser(
         "run",
         help="Run the local OpenCuttle runtime",
@@ -27,7 +24,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run_parser.set_defaults(handler=handle_run)
 
-    # `opencuttle node ...`
     node_parser = subparsers.add_parser(
         "node",
         help="Inspect registered nodes",
@@ -50,7 +46,6 @@ def build_parser() -> argparse.ArgumentParser:
     node_inspect_parser.add_argument("name", help="Name of the node to inspect")
     node_inspect_parser.set_defaults(handler=handle_node_inspect)
 
-    # `opencuttle task ...`
     task_parser = subparsers.add_parser(
         "task",
         help="Run tasks through OpenCuttle",
@@ -66,7 +61,6 @@ def build_parser() -> argparse.ArgumentParser:
     task_run_parser.add_argument("text", nargs="?", help="Task text to execute")
     task_run_parser.set_defaults(handler=handle_task_run)
 
-    # `opencuttle logs`
     logs_parser = subparsers.add_parser(
         "logs",
         help="Show runtime logs",
@@ -79,57 +73,46 @@ def build_parser() -> argparse.ArgumentParser:
 
 def handle_run(args: argparse.Namespace) -> int:
     """
-    Placeholder handler for `opencuttle run`.
+    Run the current local OpenCuttle runtime flow.
+
+    Returns:
+        Process exit code.
     """
-    print("OpenCuttle CLI is wired correctly.")
-    print("`opencuttle run` will be implemented in Issue 22.")
-    return 0
+    print("Starting OpenCuttle local runtime...\n")
+
+    try:
+        run_demo()
+        return 0
+    except FileNotFoundError as exc:
+        print(f"OpenCuttle setup error: {exc}")
+        return 1
+    except Exception as exc:
+        print(f"OpenCuttle runtime error: {exc}")
+        return 1
 
 
 def handle_node_list(args: argparse.Namespace) -> int:
-    """
-    Placeholder handler for `opencuttle node list`.
-    """
     print("`opencuttle node list` will be implemented in Issue 23.")
     return 0
 
 
 def handle_node_inspect(args: argparse.Namespace) -> int:
-    """
-    Placeholder handler for `opencuttle node inspect`.
-    """
     print(f"`opencuttle node inspect {args.name}` will be implemented in Issue 24.")
     return 0
 
 
 def handle_task_run(args: argparse.Namespace) -> int:
-    """
-    Placeholder handler for `opencuttle task run`.
-    """
     text = args.text if args.text else "<no task text provided>"
     print(f"`opencuttle task run` will be implemented in Issue 25. Input: {text}")
     return 0
 
 
 def handle_logs(args: argparse.Namespace) -> int:
-    """
-    Placeholder handler for `opencuttle logs`.
-    """
     print("`opencuttle logs` will be implemented in Issue 26.")
     return 0
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """
-    CLI entrypoint.
-
-    Args:
-        argv:
-            Optional argument list. If omitted, argparse will use sys.argv.
-
-    Returns:
-        Process exit code.
-    """
     parser = build_parser()
     args = parser.parse_args(argv)
 

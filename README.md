@@ -382,7 +382,7 @@ See the full roadmap in [ROADMAP.md](ROADMAP.md).
 
 ```text
 opencuttle/
-├── cmd/              # CLI entrypoints
+├── cli/              # CLI entrypoints
 ├── core/             # bus, envelopes, runtime primitives
 ├── orchestrator/     # central orchestration logic
 ├── adapters/         # external system adapters
