@@ -7,6 +7,7 @@ from typing import Sequence
 
 # Local imports
 from examples.demo_local_bus import run_demo
+from cli.runtime import build_default_local_bus
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -92,8 +93,41 @@ def handle_run(args: argparse.Namespace) -> int:
 
 
 def handle_node_list(args: argparse.Namespace) -> int:
-    print("`opencuttle node list` will be implemented in Issue 23.")
-    return 0
+    """
+    List currently registered nodes from the local registry view.
+
+    Returns:
+        Process exit code.
+    """
+    try:
+        bus = build_default_local_bus()
+        manifests = bus.list_node_manifests()
+
+        if not manifests:
+            print("No registered nodes found.")
+            return 0
+
+        print("Registered nodes:\n")
+
+        for manifest in manifests:
+            name = manifest["name"]
+            node_type = manifest["type"]
+            skills = ", ".join(manifest.get("skills", []))
+            tags = ", ".join(manifest.get("tags", []))
+            description = manifest["description"]
+
+            print(f"- {name}")
+            print(f"  type: {node_type}")
+            print(f"  description: {description}")
+            print(f"  skills: {skills if skills else '-'}")
+            print(f"  tags: {tags if tags else '-'}")
+            print()
+
+        return 0
+
+    except Exception as exc:
+        print(f"OpenCuttle node listing error: {exc}")
+        return 1
 
 
 def handle_node_inspect(args: argparse.Namespace) -> int:
@@ -111,6 +145,23 @@ def handle_logs(args: argparse.Namespace) -> int:
     print("`opencuttle logs` will be implemented in Issue 26.")
     return 0
 
+def format_manifest_list_item(manifest: dict) -> str:
+    """
+    Format one node manifest for list output.
+    """
+    name = manifest["name"]
+    node_type = manifest["type"]
+    skills = ", ".join(manifest.get("skills", []))
+    tags = ", ".join(manifest.get("tags", []))
+    description = manifest["description"]
+
+    return (
+        f"- {name}\n"
+        f"  type: {node_type}\n"
+        f"  description: {description}\n"
+        f"  skills: {skills if skills else '-'}\n"
+        f"  tags: {tags if tags else '-'}\n"
+    )
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()

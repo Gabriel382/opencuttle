@@ -63,3 +63,7 @@ cli:
 
 help-cli:
 	@PYTHONPATH=. $(PYTHON) -m cli.main --help
+
+node-list:
+	@echo "==> Listing OpenCuttle nodes"
+	@PYTHONPATH=. $(PYTHON) -m cli.main node list
