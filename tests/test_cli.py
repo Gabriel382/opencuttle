@@ -17,9 +17,10 @@ def test_main_without_args_shows_help_and_returns_zero(capsys) -> None:
     assert "opencuttle" in captured.out.lower()
 
 
-def test_run_subcommand_executes_placeholder(capsys) -> None:
+def test_run_subcommand_executes_runtime_flow(capsys) -> None:
     exit_code = main(["run"])
     captured = capsys.readouterr()
 
     assert exit_code == 0
-    assert "issue 22" in captured.out.lower()
+    assert "starting opencuttle local runtime" in captured.out.lower()
+    assert "demo complete" in captured.out.lower()

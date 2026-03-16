@@ -3,13 +3,14 @@ from __future__ import annotations
 # Standard library imports
 from datetime import datetime, UTC
 import logging
+from typing import Any
 
 # Local imports
 from core.local_bus import LocalBus, EchoNode
 from core.message_ids import generate_message_id, generate_task_id
 
 
-def build_demo_message(sender: str, target: str) -> dict:
+def build_demo_message(sender: str, target: str) -> dict[str, Any]:
     """
     Build a valid demo message envelope.
     """
@@ -30,9 +31,12 @@ def build_demo_message(sender: str, target: str) -> dict:
     }
 
 
-def main() -> None:
+def run_demo() -> dict[str, Any]:
     """
     Run the minimal two-node OpenCuttle local bus demo.
+
+    Returns:
+        The response envelope returned by node B.
     """
     logging.basicConfig(
         level=logging.INFO,
@@ -41,37 +45,25 @@ def main() -> None:
 
     print("=== OpenCuttle Demo: two-node local bus ===")
 
-    # Create the local bus.
     bus = LocalBus()
 
-    # Define the two demo nodes conceptually.
     node_a_name = "node-a"
     node_b = EchoNode(name="node-b")
 
     print(f"Creating node A: {node_a_name}")
     print(f"Creating node B: {node_b.name}")
 
-    # Register only the receiving node in the bus.
-    # Node A is represented as the logical sender in this minimal demo.
     bus.register_node(node_b)
+
     print("\nRegistered node manifests:")
     for manifest in bus.list_node_manifests():
         print(manifest)
-    
-    print("\nRuntime nodes:")
-    for node in bus.list_nodes():
-        print(f"- {node.name} ({node.__class__.__name__})")
 
-    print("\nNode summary:")
-    print(bus.format_node_summary("node-b"))
-
-    # Build the message sent from node A to node B.
     message = build_demo_message(sender=node_a_name, target=node_b.name)
 
     print("\nNode A sends a message through the OpenCuttle bus:")
     print(message)
 
-    # Dispatch synchronously through the local bus.
     response = bus.send(message)
 
     print("\nNode B responds:")
@@ -80,6 +72,19 @@ def main() -> None:
     print("\nDemo complete.")
     print("OpenCuttle local bus successfully routed one message from node A to node B.")
 
+    return response
+
+
+def main() -> int:
+    """
+    Script entrypoint for the local bus demo.
+
+    Returns:
+        Process exit code.
+    """
+    run_demo()
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

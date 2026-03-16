@@ -3,27 +3,7 @@ SHELL := /bin/bash
 PROJECT_NAME := opencuttle
 PYTHON := $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 
-.PHONY: help dev test lint build run clean doctor demo
-
-help:
-	@echo "OpenCuttle development targets"
-	@echo ""
-	@echo "  make dev     - Set up local development environment"
-	@echo "  make test    - Run tests"
-	@echo "  make lint    - Run linting checks"
-	@echo "  make build   - Build project artifacts"
-	@echo "  make run     - Run OpenCuttle locally"
-	@echo "  make clean   - Remove temporary files"
-	@echo "  make doctor  - Check local environment"
-	@echo "  make demo    - Run the Sprint 1 demo"
-
-dev:
-	@echo "==> Setting up development environment"
-	@if [ -f requirements-dev.txt ]; then \
-		$(PYTHON) -m pip install -r requirements-dev.txt; \
-	else \
-		echo "No requirements-dev.txt found yet. Skipping dependency install."; \
-	fi
+.PHONY: run cli test lint build clean doctor demo
 
 test:
 	@echo "==> Running tests"
@@ -46,16 +26,6 @@ build:
 	@mkdir -p dist
 	@echo "Sprint 1 build placeholder" > dist/BUILD_INFO.txt
 	@echo "Created dist/BUILD_INFO.txt"
-
-run:
-	@echo "==> Running OpenCuttle"
-	@if [ -f scripts/run.py ]; then \
-		PYTHONPATH=. $(PYTHON) scripts/run.py; \
-	else \
-		echo "scripts/run.py not found yet."; \
-		echo "Create it in Sprint 1 so 'make run' has a real entrypoint."; \
-		exit 1; \
-	fi
 
 clean:
 	@echo "==> Cleaning temporary files"
@@ -83,8 +53,12 @@ demo:
 		exit 1; \
 	fi
 
+run:
+	@echo "==> Running OpenCuttle"
+	@PYTHONPATH=. $(PYTHON) -m cli.main run
+
 cli:
-	@echo "==> Running OpenCuttle CLI"
+	@echo "==> OpenCuttle CLI help"
 	@PYTHONPATH=. $(PYTHON) -m cli.main --help
 
 help-cli:
