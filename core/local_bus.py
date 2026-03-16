@@ -8,6 +8,10 @@ from typing import Protocol, Any
 # Local imports
 from core.message_ids import generate_message_id
 from core.message_validator import validate_message_envelope
+from core.node_registry import (
+    NodeManifestAlreadyRegisteredError,
+    NodeRegistry,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -36,52 +40,114 @@ class BusNode(Protocol):
         """Handle an incoming message and return a response message."""
 
 
+def build_default_node_manifest(node: BusNode) -> dict[str, Any]:
+    """
+    Build a minimal default node manifest from a runtime node object.
+
+    This keeps existing demos working even when no explicit manifest is passed.
+
+    Args:
+        node:
+            The runtime node instance.
+
+    Returns:
+        A valid minimal node manifest.
+    """
+    return {
+        "name": node.name,
+        "type": "node",
+        "description": f"Auto-generated manifest for node '{node.name}'",
+        "skills": ["unknown"],
+        "tags": ["local", "auto-generated"],
+    }
+
+
 @dataclass
 class LocalBus:
     """
     Minimal in-memory OpenCuttle bus.
 
     This v0 bus:
-    - stores nodes in memory
+    - stores runtime nodes in memory
+    - stores node metadata in a dedicated registry
     - dispatches synchronously
     - does not use network access
     - does not persist state
     """
 
     nodes: dict[str, BusNode]
+    registry: NodeRegistry
 
     def __init__(self) -> None:
-        """Initialize an empty local bus."""
+        """Initialize an empty local bus and node registry."""
         self.nodes = {}
+        self.registry = NodeRegistry()
 
-    def register_node(self, node: BusNode) -> None:
+    def register_node(
+        self,
+        node: BusNode,
+        manifest: dict[str, Any] | None = None,
+    ) -> None:
         """
-        Register a node in the local bus.
+        Register a node in the local bus and metadata registry.
+
+        Args:
+            node:
+                The runtime node object.
+            manifest:
+                Optional explicit node manifest. If omitted, a default manifest
+                is generated from the node.
+
+        Raises:
+            NodeAlreadyRegisteredError:
+                If the node name is already registered in the bus or registry.
         """
         if node.name in self.nodes:
             raise NodeAlreadyRegisteredError(
                 f"Node '{node.name}' is already registered in the local bus."
             )
 
+        final_manifest = manifest if manifest is not None else build_default_node_manifest(node)
+
+        try:
+            self.registry.register(final_manifest)
+        except NodeManifestAlreadyRegisteredError as exc:
+            raise NodeAlreadyRegisteredError(str(exc)) from exc
+
         self.nodes[node.name] = node
-        logger.info("Registered node '%s'", node.name)
+        logger.info("Registered node '%s' in local bus and registry", node.name)
 
     def has_node(self, node_name: str) -> bool:
         """
-        Check whether a node is registered.
+        Check whether a node is registered in the runtime bus.
         """
         return node_name in self.nodes
+
+    def get_node_manifest(self, node_name: str) -> dict[str, Any]:
+        """
+        Retrieve registered node metadata from the registry.
+
+        Args:
+            node_name:
+                The node name to inspect.
+
+        Returns:
+            The registered node manifest.
+        """
+        return self.registry.get(node_name)
+
+    def list_node_manifests(self) -> list[dict[str, Any]]:
+        """
+        List all registered node manifests.
+
+        Returns:
+            All manifests currently registered in the bus registry.
+        """
+        return self.registry.list_all()
 
     def send(self, message: dict[str, Any]) -> dict[str, Any]:
         """
         Friendlier alias for dispatch().
-
-        Args:
-            message:
-                The validated message envelope to send.
-
-        Returns:
-            The response envelope returned by the target node.
         """
         return self.dispatch(message)
 

@@ -226,3 +226,13 @@ The v0 registry supports:
 - duplicate-name rejection
 
 The registry is intentionally independent of the CLI and orchestration layers.
+
+## Registry integration
+
+In Sprint 2, node registration in the local bus also registers node metadata in the dedicated node registry.
+
+This means OpenCuttle now stores:
+- runtime node objects for dispatch
+- metadata manifests for inspection
+
+The runtime and metadata layers are still local and in-memory in v0.
