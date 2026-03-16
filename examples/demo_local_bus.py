@@ -57,6 +57,13 @@ def main() -> None:
     print("\nRegistered node manifests:")
     for manifest in bus.list_node_manifests():
         print(manifest)
+    
+    print("\nRuntime nodes:")
+    for node in bus.list_nodes():
+        print(f"- {node.name} ({node.__class__.__name__})")
+
+    print("\nNode summary:")
+    print(bus.format_node_summary("node-b"))
 
     # Build the message sent from node A to node B.
     message = build_demo_message(sender=node_a_name, target=node_b.name)

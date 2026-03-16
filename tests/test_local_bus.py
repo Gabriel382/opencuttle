@@ -9,6 +9,7 @@ from core.local_bus import (
     LocalBus,
     NodeAlreadyRegisteredError,
     NodeNotFoundError,
+    RuntimeNodeNotFoundError
 )
 from core.message_ids import generate_message_id, generate_task_id
 from core.message_validator import MessageEnvelopeValidationError
@@ -253,3 +254,92 @@ def test_list_node_manifests_returns_registered_nodes() -> None:
     names = {manifest["name"] for manifest in manifests}
 
     assert names == {"node-a", "node-b"}
+
+def test_get_node_returns_runtime_node_by_name() -> None:
+    """
+    A registered runtime node should be retrievable by name.
+    """
+    bus = LocalBus()
+    node = EchoNode(name="node-b")
+
+    bus.register_node(node)
+
+    stored_node = bus.get_node("node-b")
+
+    assert stored_node is node
+    assert stored_node.name == "node-b"
+
+
+def test_get_node_missing_runtime_node_fails_clearly() -> None:
+    """
+    Looking up a missing runtime node should fail clearly.
+    """
+    bus = LocalBus()
+
+    try:
+        bus.get_node("missing-node")
+        assert False, "Expected get_node() to fail for unknown node"
+    except RuntimeNodeNotFoundError as exc:
+        assert "missing-node" in str(exc)
+        assert "not registered" in str(exc).lower()
+
+
+def test_list_nodes_returns_all_registered_runtime_nodes() -> None:
+    """
+    Listing nodes should return all registered runtime node objects.
+    """
+    bus = LocalBus()
+    node_a = EchoNode(name="node-a")
+    node_b = EchoNode(name="node-b")
+
+    bus.register_node(node_a)
+    bus.register_node(node_b)
+
+    nodes = bus.list_nodes()
+    names = {node.name for node in nodes}
+
+    assert names == {"node-a", "node-b"}
+
+
+def test_get_node_summary_returns_readable_metadata_bundle() -> None:
+    """
+    Node summary should combine runtime and manifest information.
+    """
+    bus = LocalBus()
+    node = EchoNode(name="node-b")
+
+    manifest = {
+        "name": "node-b",
+        "type": "node",
+        "description": "Explicit demo node manifest",
+        "skills": ["echo", "demo"],
+        "tags": ["local", "reference"],
+        "model": "none",
+        "version": "0.1.0",
+        "priority": 5,
+        "persona": "friendly-demo",
+        "memory_scope": "none",
+    }
+
+    bus.register_node(node, manifest=manifest)
+
+    summary = bus.get_node_summary("node-b")
+
+    assert summary["name"] == "node-b"
+    assert summary["runtime_class"] == "EchoNode"
+    assert summary["manifest"]["description"] == "Explicit demo node manifest"
+
+
+def test_format_node_summary_returns_string_output() -> None:
+    """
+    Formatted node summary should return readable text for future CLI use.
+    """
+    bus = LocalBus()
+    node = EchoNode(name="node-b")
+    bus.register_node(node)
+
+    output = bus.format_node_summary("node-b")
+
+    assert isinstance(output, str)
+    assert '"name": "node-b"' in output
+    assert '"runtime_class": "EchoNode"' in output
