@@ -75,3 +75,7 @@ task-run:
 node-registration-example:
 	@echo "==> Running OpenCuttle node registration example"
 	@PYTHONPATH=. $(PYTHON) examples/node_registration_example.py
+
+task-execution-example:
+	@echo "==> Running OpenCuttle task execution example"
+	@PYTHONPATH=. $(PYTHON) examples/task_execution_example.py
